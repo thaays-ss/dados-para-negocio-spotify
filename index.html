@@ -40,20 +40,21 @@ body {
   border: 2px solid var(--green);
   border-radius: 50%;
   position: fixed;
-  top: 0; left: 0;
+  top: -10px; left: -10px;
   pointer-events: none;
   z-index: 9999;
-  transition: transform 0.1s ease, opacity 0.3s;
-  mix-blend-mode: difference;
+  will-change: transform;
+  transition: opacity 0.3s;
 }
 .cursor-dot {
   width: 5px; height: 5px;
   background: var(--green);
   border-radius: 50%;
   position: fixed;
-  top: 0; left: 0;
+  top: -2.5px; left: -2.5px;
   pointer-events: none;
   z-index: 9999;
+  will-change: transform;
 }
 
 /* ── PROGRESS BAR ───────────────────────────── */
@@ -67,38 +68,7 @@ body {
   transition: width 0.1s linear;
 }
 
-/* ── NAV ────────────────────────────────────── */
-nav {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.2rem 3rem;
-  z-index: 100;
-  backdrop-filter: blur(20px);
-  background: rgba(18,18,18,0.85);
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-}
-.nav-logo {
-  font-family: 'Space Mono', monospace;
-  font-size: 1rem;
-  color: var(--green);
-  letter-spacing: 0.1em;
-}
-.nav-links {
-  display: flex; gap: 2rem;
-  list-style: none;
-}
-.nav-links a {
-  font-size: 0.75rem;
-  color: var(--gray);
-  text-decoration: none;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  transition: color 0.2s;
-}
-.nav-links a:hover { color: var(--green); }
+/* nav removed */
 
 /* ── SECTION COMMONS ───────────────────────── */
 section {
@@ -170,6 +140,7 @@ section {
   90%  { opacity: 0.08; }
   to   { transform: translateY(-20vh) rotate(360deg); opacity: 0; }
 }
+.floating-note { will-change: transform; }
 
 /* Equalizer bars */
 .equalizer {
@@ -384,75 +355,74 @@ section {
   padding-left: 3rem; padding-right: 3rem;
 }
 
-.timeline-track {
-  position: relative;
-  padding: 2rem 0;
-}
-.timeline-track::before {
-  content: '';
-  position: absolute;
-  left: 50%; top: 0; bottom: 0;
-  width: 1px;
-  background: linear-gradient(to bottom, transparent, var(--green), transparent);
-  transform: translateX(-50%);
-}
-
-.tl-item {
+/* ── TIMELINE CARDS ─────────────────────────── */
+.tl-cards {
   display: grid;
-  grid-template-columns: 1fr 60px 1fr;
-  gap: 0;
-  margin-bottom: 4rem;
-  align-items: center;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin: 2rem 0;
 }
-.tl-item:nth-child(odd) .tl-content { text-align: right; }
-.tl-item:nth-child(even) .tl-left { order: 3; text-align: left; }
-.tl-item:nth-child(even) .tl-mid { order: 2; }
-.tl-item:nth-child(even) .tl-content { order: 1; text-align: right; }
-
-.tl-content {
-  padding: 1.5rem;
+.tl-card {
+  background: var(--card);
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.06);
+  transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+  cursor: default;
 }
-.tl-period {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.75rem;
-  color: var(--green);
-  letter-spacing: 0.15em;
-  margin-bottom: 0.5rem;
+.tl-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+  border-color: rgba(29,185,84,0.3);
 }
-.tl-move {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.4rem;
-  font-weight: 700;
-  margin-bottom: 0.8rem;
-  line-height: 1.2;
-}
-.tl-ev { font-size: 0.9rem; color: var(--gray); line-height: 1.5; }
-.tl-result {
-  margin-top: 0.6rem;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--white);
-}
-
-.tl-mid {
+.tl-card-header {
+  padding: 1rem 1.2rem;
   display: flex;
-  justify-content: center;
   align-items: center;
-  position: relative;
-  z-index: 1;
+  gap: 0.8rem;
 }
-.tl-dot {
-  width: 44px; height: 44px;
+.tl-card-num {
+  width: 32px; height: 32px;
   border-radius: 50%;
-  background: var(--dark);
-  border: 2px solid var(--green);
+  background: var(--green);
+  color: var(--black);
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
   display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.tl-card-period {
   font-family: 'Space Mono', monospace;
   font-size: 0.7rem;
   color: var(--green);
-  transition: background 0.3s, color 0.3s;
+  letter-spacing: 0.1em;
 }
-.tl-dot:hover { background: var(--green); color: var(--black); }
+.tl-card-body { padding: 0 1.2rem 1.2rem; }
+.tl-card-icon { font-size: 2rem; margin-bottom: 0.6rem; display: block; }
+.tl-card-move {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.7rem;
+  line-height: 1.3;
+  color: var(--white);
+}
+.tl-card-ev {
+  font-size: 0.82rem;
+  color: var(--gray);
+  line-height: 1.5;
+  margin-bottom: 0.8rem;
+}
+.tl-card-result {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--green);
+  background: rgba(29,185,84,0.08);
+  border-radius: 6px;
+  padding: 0.5rem 0.7rem;
+  line-height: 1.4;
+}
 
 /* ── DATA DRIVEN x DATA CENTRIC ────────────── */
 #data {
@@ -1106,18 +1076,7 @@ section {
 <div class="cursor-dot" id="cursorDot"></div>
 <div class="progress-bar" id="progressBar"></div>
 
-<!-- NAV -->
-<nav>
-  <div class="nav-logo">♪ SPOTIFY · MBA MACKENZIE</div>
-  <ul class="nav-links">
-    <li><a href="#core">Core</a></li>
-    <li><a href="#timeline">Evolução</a></li>
-    <li><a href="#squads">Squads</a></li>
-    <li><a href="#indicators">Indicadores</a></li>
-    <li><a href="#arch">Arquitetura</a></li>
-    <li><a href="#conclusion">Conclusão</a></li>
-  </ul>
-</nav>
+<!-- nav removed -->
 
 <!-- ════════════ HERO ════════════ -->
 <section id="hero">
@@ -1154,8 +1113,8 @@ section {
 <section id="core">
   <div class="section-label reveal">01 · Core Business</div>
   <h2 class="big-statement reveal">
-    Em 2006, consumir música legalmente era<br>
-    <span class="g">estruturalmente inferior</span> à pirataria.
+    Em 2006, acessar música de forma legal era<br>
+    <span class="g">mais difícil e menos vantajoso</span> do que piratear.
   </h2>
 
   <div class="problem-solution reveal">
@@ -1173,7 +1132,7 @@ section {
 
   <div class="stats-row reveal">
     <div class="stat-card">
-      <span class="stat-num counter" data-target="751">0</span><span class="stat-num" style="font-size:1.5rem;color:var(--green)">M</span>
+      <span class="stat-num" id="stat751">751M</span>
       <div class="stat-label">Usuários Ativos Mensais</div>
     </div>
     <div class="stat-card">
@@ -1251,48 +1210,53 @@ section {
     Quatro Reinvenções Sustentadas por Dados
   </h2>
 
-  <div class="timeline-track">
-    <div class="tl-item reveal-left">
-      <div class="tl-content">
-        <div class="tl-period">2006 — 2010</div>
-        <div class="tl-move">Streaming Freemium 🎵</div>
-        <div class="tl-ev">Dados de reprodução viabilizaram royalties dinâmicos — modelo novo para toda a indústria.</div>
-        <div class="tl-result">→ Alternativa legal superior à pirataria.</div>
+  <div class="tl-cards reveal">
+    <div class="tl-card">
+      <div class="tl-card-header">
+        <div class="tl-card-num">01</div>
+        <div class="tl-card-period">2006 — 2010</div>
       </div>
-      <div class="tl-mid"><div class="tl-dot">01</div></div>
-      <div></div>
-    </div>
-
-    <div class="tl-item reveal-right">
-      <div></div>
-      <div class="tl-mid"><div class="tl-dot">02</div></div>
-      <div class="tl-content">
-        <div class="tl-period">2011 — 2016</div>
-        <div class="tl-move">Recomendação como Produto 🎧</div>
-        <div class="tl-ev">Padrões de skip e salvamento revelaram que usuários preferem ser guiados a escolher.</div>
-        <div class="tl-result">→ Diferencial competitivo estrutural inimitável.</div>
+      <div class="tl-card-body">
+        <span class="tl-card-icon">🎵</span>
+        <div class="tl-card-move">Streaming Freemium</div>
+        <div class="tl-card-ev">Dados de reprodução viabilizaram royalties dinâmicos — modelo novo para toda a indústria.</div>
+        <div class="tl-card-result">Alternativa legal superior à pirataria</div>
       </div>
     </div>
-
-    <div class="tl-item reveal-left">
-      <div class="tl-content">
-        <div class="tl-period">2017 — 2022</div>
-        <div class="tl-move">Podcasts + IPO na NYSE 🎙️</div>
-        <div class="tl-ev">Sessões longas sinalizaram apetite por conteúdo de maior duração. Aquisição de Gimlet, Anchor e Megaphone.</div>
-        <div class="tl-result">→ Nova receita; menos dependência de royalties musicais.</div>
+    <div class="tl-card">
+      <div class="tl-card-header">
+        <div class="tl-card-num">02</div>
+        <div class="tl-card-period">2011 — 2016</div>
       </div>
-      <div class="tl-mid"><div class="tl-dot">03</div></div>
-      <div></div>
+      <div class="tl-card-body">
+        <span class="tl-card-icon">🎧</span>
+        <div class="tl-card-move">Recomendação como Produto</div>
+        <div class="tl-card-ev">Padrões de skip e salvamento revelaram que usuários preferem ser guiados a escolher.</div>
+        <div class="tl-card-result">Diferencial competitivo estrutural inimitável</div>
+      </div>
     </div>
-
-    <div class="tl-item reveal-right">
-      <div></div>
-      <div class="tl-mid"><div class="tl-dot">04</div></div>
-      <div class="tl-content">
-        <div class="tl-period">2023 — 2026</div>
-        <div class="tl-move">Super-app + IA Generativa 🤖</div>
-        <div class="tl-ev">4 bilhões de horas no AI DJ validaram curadoria conversacional. Dataset de linguagem-para-música nunca antes construído.</div>
-        <div class="tl-result">→ €4,5Bi de receita · €701M de lucro · Q4/2025.</div>
+    <div class="tl-card">
+      <div class="tl-card-header">
+        <div class="tl-card-num">03</div>
+        <div class="tl-card-period">2017 — 2022</div>
+      </div>
+      <div class="tl-card-body">
+        <span class="tl-card-icon">🎙️</span>
+        <div class="tl-card-move">Podcasts + IPO na NYSE</div>
+        <div class="tl-card-ev">Sessões longas sinalizaram apetite por conteúdo de maior duração. Aquisição de Gimlet, Anchor e Megaphone.</div>
+        <div class="tl-card-result">Nova receita; menos dependência de royalties</div>
+      </div>
+    </div>
+    <div class="tl-card">
+      <div class="tl-card-header">
+        <div class="tl-card-num" style="background:var(--teal);color:var(--white)">04</div>
+        <div class="tl-card-period">2023 — 2026</div>
+      </div>
+      <div class="tl-card-body">
+        <span class="tl-card-icon">🤖</span>
+        <div class="tl-card-move">Super-app + IA Generativa</div>
+        <div class="tl-card-ev">4 bilhões de horas no AI DJ validaram curadoria conversacional. Dataset de linguagem-para-música nunca antes construído.</div>
+        <div class="tl-card-result">€4,5Bi receita · €701M lucro · Q4/2025</div>
       </div>
     </div>
   </div>
@@ -1716,13 +1680,11 @@ const dot = document.getElementById('cursorDot');
 let mx=0,my=0,cx=0,cy=0;
 document.addEventListener('mousemove', e => {
   mx = e.clientX; my = e.clientY;
-  dot.style.left = mx-2.5+'px';
-  dot.style.top = my-2.5+'px';
-});
+  dot.style.transform = `translate3d(${mx}px,${my}px,0)`;
+}, { passive:true });
 function animCursor(){
   cx += (mx-cx)*0.12; cy += (my-cy)*0.12;
-  cursor.style.left = cx-10+'px';
-  cursor.style.top = cy-10+'px';
+  cursor.style.transform = `translate3d(${cx}px,${cy}px,0)`;
   requestAnimationFrame(animCursor);
 }
 animCursor();
@@ -1820,18 +1782,7 @@ function startCounter(el) {
   }, 16);
 }
 
-// ── SCROLL HIGHLIGHT NAV ───────────────────────
-const sections = document.querySelectorAll('section[id]');
-const navLinks = document.querySelectorAll('.nav-links a');
-window.addEventListener('scroll', () => {
-  let current = '';
-  sections.forEach(s => {
-    if(window.scrollY >= s.offsetTop - 200) current = s.id;
-  });
-  navLinks.forEach(a => {
-    a.style.color = a.getAttribute('href') === '#'+current ? 'var(--green)' : '';
-  });
-}, { passive:true });
+// nav removed
 </script>
 </body>
 </html>
