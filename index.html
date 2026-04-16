@@ -1,0 +1,1837 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spotify · O Dado é o Produto</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Space+Grotesk:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green: #1DB954;
+  --green2: #0D7A5F;
+  --black: #191414;
+  --dark: #121212;
+  --card: #282828;
+  --card2: #1e1e1e;
+  --gray: #B3B3B3;
+  --lgray: #535353;
+  --orange: #E67E22;
+  --red: #E74C3C;
+  --purple: #7B2FBE;
+  --teal: #17A589;
+  --white: #FFFFFF;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--dark);
+  color: var(--white);
+  font-family: 'Space Grotesk', sans-serif;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* Custom cursor */
+.cursor {
+  width: 20px; height: 20px;
+  border: 2px solid var(--green);
+  border-radius: 50%;
+  position: fixed;
+  top: 0; left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  transition: transform 0.1s ease, opacity 0.3s;
+  mix-blend-mode: difference;
+}
+.cursor-dot {
+  width: 5px; height: 5px;
+  background: var(--green);
+  border-radius: 50%;
+  position: fixed;
+  top: 0; left: 0;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ── PROGRESS BAR ───────────────────────────── */
+.progress-bar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 3px;
+  background: var(--green);
+  z-index: 1000;
+  width: 0%;
+  transition: width 0.1s linear;
+}
+
+/* ── NAV ────────────────────────────────────── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.2rem 3rem;
+  z-index: 100;
+  backdrop-filter: blur(20px);
+  background: rgba(18,18,18,0.85);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.nav-logo {
+  font-family: 'Space Mono', monospace;
+  font-size: 1rem;
+  color: var(--green);
+  letter-spacing: 0.1em;
+}
+.nav-links {
+  display: flex; gap: 2rem;
+  list-style: none;
+}
+.nav-links a {
+  font-size: 0.75rem;
+  color: var(--gray);
+  text-decoration: none;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--green); }
+
+/* ── SECTION COMMONS ───────────────────────── */
+section {
+  min-height: 100vh;
+  padding: 8rem 3rem 5rem;
+  position: relative;
+}
+.section-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.25em;
+  color: var(--green);
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  display: flex; align-items: center; gap: 0.8rem;
+}
+.section-label::after {
+  content: '';
+  display: block; height: 1px; width: 40px;
+  background: var(--green);
+}
+
+/* ── ANIMATIONS ────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s cubic-bezier(.16,1,.3,1), transform 0.8s cubic-bezier(.16,1,.3,1);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-left {
+  opacity: 0; transform: translateX(-50px);
+  transition: opacity 0.8s cubic-bezier(.16,1,.3,1), transform 0.8s cubic-bezier(.16,1,.3,1);
+}
+.reveal-left.visible { opacity: 1; transform: translateX(0); }
+.reveal-right {
+  opacity: 0; transform: translateX(50px);
+  transition: opacity 0.8s cubic-bezier(.16,1,.3,1), transform 0.8s cubic-bezier(.16,1,.3,1);
+}
+.reveal-right.visible { opacity: 1; transform: translateX(0); }
+
+/* ── HERO ───────────────────────────────────── */
+#hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 0;
+  overflow: hidden;
+  position: relative;
+  background: var(--black);
+}
+
+.hero-bg-notes {
+  position: absolute; inset: 0;
+  overflow: hidden; pointer-events: none;
+}
+.floating-note {
+  position: absolute;
+  font-size: 2rem;
+  opacity: 0.06;
+  animation: floatNote linear infinite;
+  user-select: none;
+}
+@keyframes floatNote {
+  from { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+  10%  { opacity: 0.08; }
+  90%  { opacity: 0.08; }
+  to   { transform: translateY(-20vh) rotate(360deg); opacity: 0; }
+}
+
+/* Equalizer bars */
+.equalizer {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 80px;
+  margin-bottom: 3rem;
+}
+.eq-bar {
+  width: 6px;
+  background: var(--green);
+  border-radius: 3px 3px 0 0;
+  animation: eqPulse ease-in-out infinite alternate;
+  transform-origin: bottom;
+}
+@keyframes eqPulse {
+  from { transform: scaleY(0.2); opacity: 0.5; }
+  to   { transform: scaleY(1); opacity: 1; }
+}
+
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(3.5rem, 9vw, 9rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  margin-bottom: 1.5rem;
+}
+.hero-title .accent { color: var(--green); }
+.hero-title .italic { font-style: italic; }
+
+.hero-subtitle {
+  font-size: 1.1rem;
+  color: var(--gray);
+  max-width: 500px;
+  line-height: 1.6;
+  margin-bottom: 2.5rem;
+}
+
+.hero-authors {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--lgray);
+  letter-spacing: 0.15em;
+  margin-top: 1rem;
+}
+
+.scroll-hint {
+  position: absolute;
+  bottom: 2rem; left: 50%;
+  transform: translateX(-50%);
+  display: flex; flex-direction: column;
+  align-items: center; gap: 0.5rem;
+  color: var(--lgray);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  animation: bounce 2s ease-in-out infinite;
+}
+@keyframes bounce {
+  0%,100% { transform: translateX(-50%) translateY(0); }
+  50%      { transform: translateX(-50%) translateY(8px); }
+}
+.scroll-hint svg { animation: scrollArrow 1.5s ease infinite; }
+@keyframes scrollArrow {
+  0%,100% { opacity: 0.3; }
+  50%      { opacity: 1; }
+}
+
+/* ── VINYL DIVIDER ─────────────────────────── */
+.vinyl-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 0;
+  gap: 2rem;
+  overflow: hidden;
+}
+.vinyl {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle at center,
+    #3a3a3a 0%, #1a1a1a 30%, #2a2a2a 31%, #1a1a1a 45%,
+    #333 46%, #1a1a1a 55%, #2a2a2a 56%, #111 100%);
+  position: relative;
+  animation: spin 4s linear infinite;
+  flex-shrink: 0;
+}
+.vinyl::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 0 3px #111, 0 0 0 5px #333;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.divider-line {
+  flex: 1; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--lgray), transparent);
+}
+
+/* ── CORE BUSINESS ─────────────────────────── */
+#core {
+  background: var(--black);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-left: 3rem; padding-right: 3rem;
+}
+
+.problem-solution {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  margin: 3rem 0;
+  border-radius: 16px;
+  overflow: hidden;
+}
+.problem-side {
+  background: rgba(231,76,60,0.1);
+  border: 1px solid rgba(231,76,60,0.3);
+  padding: 2.5rem;
+}
+.solution-side {
+  background: rgba(29,185,84,0.08);
+  border: 1px solid rgba(29,185,84,0.3);
+  padding: 2.5rem;
+}
+.ps-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+}
+.problem-side .ps-label { color: var(--red); }
+.solution-side .ps-label { color: var(--green); }
+.ps-text {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: var(--gray);
+}
+.ps-highlight {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  color: var(--white);
+  font-style: italic;
+  margin-top: 1.2rem;
+  line-height: 1.4;
+}
+
+.big-statement {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  margin: 3rem 0;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.big-statement .g { color: var(--green); }
+
+.stats-row {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  margin: 3rem 0;
+  flex-wrap: wrap;
+}
+.stat-card {
+  background: var(--card);
+  border: 1px solid rgba(29,185,84,0.3);
+  border-radius: 12px;
+  padding: 2rem 2.5rem;
+  text-align: center;
+  flex: 1; min-width: 180px; max-width: 240px;
+  position: relative;
+  overflow: hidden;
+}
+.stat-card::before {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--green);
+}
+.stat-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 3rem;
+  font-weight: 900;
+  color: var(--green);
+  display: block;
+  line-height: 1;
+}
+.stat-label {
+  font-size: 0.8rem;
+  color: var(--gray);
+  margin-top: 0.5rem;
+  letter-spacing: 0.05em;
+}
+
+/* ── TIMELINE ──────────────────────────────── */
+#timeline {
+  background: var(--dark);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-left: 3rem; padding-right: 3rem;
+}
+
+.timeline-track {
+  position: relative;
+  padding: 2rem 0;
+}
+.timeline-track::before {
+  content: '';
+  position: absolute;
+  left: 50%; top: 0; bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, var(--green), transparent);
+  transform: translateX(-50%);
+}
+
+.tl-item {
+  display: grid;
+  grid-template-columns: 1fr 60px 1fr;
+  gap: 0;
+  margin-bottom: 4rem;
+  align-items: center;
+}
+.tl-item:nth-child(odd) .tl-content { text-align: right; }
+.tl-item:nth-child(even) .tl-left { order: 3; text-align: left; }
+.tl-item:nth-child(even) .tl-mid { order: 2; }
+.tl-item:nth-child(even) .tl-content { order: 1; text-align: right; }
+
+.tl-content {
+  padding: 1.5rem;
+}
+.tl-period {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--green);
+  letter-spacing: 0.15em;
+  margin-bottom: 0.5rem;
+}
+.tl-move {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 0.8rem;
+  line-height: 1.2;
+}
+.tl-ev { font-size: 0.9rem; color: var(--gray); line-height: 1.5; }
+.tl-result {
+  margin-top: 0.6rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--white);
+}
+
+.tl-mid {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+.tl-dot {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--dark);
+  border: 2px solid var(--green);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--green);
+  transition: background 0.3s, color 0.3s;
+}
+.tl-dot:hover { background: var(--green); color: var(--black); }
+
+/* ── DATA DRIVEN x DATA CENTRIC ────────────── */
+#data {
+  background: var(--black);
+  max-width: 1200px; margin: 0 auto;
+  padding-left: 3rem; padding-right: 3rem;
+}
+
+.versus-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 2rem;
+  align-items: start;
+  margin: 3rem 0;
+}
+.versus-col {
+  background: var(--card);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.versus-header {
+  padding: 1.2rem 1.5rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+}
+.versus-header.driven { background: var(--green); color: var(--black); }
+.versus-header.centric { background: var(--green2); color: var(--white); }
+.versus-items { padding: 1.5rem; }
+.versus-item {
+  display: flex;
+  gap: 0.8rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  font-size: 0.9rem;
+  color: var(--gray);
+  line-height: 1.4;
+}
+.versus-item:last-child { border-bottom: none; }
+.versus-item::before {
+  content: '→';
+  color: var(--green);
+  flex-shrink: 0;
+  font-weight: 700;
+  margin-top: 0.1rem;
+}
+.vs-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.vs-circle {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: var(--green);
+  color: var(--black);
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ── SQUADS ─────────────────────────────────── */
+#squads {
+  background: var(--dark);
+  max-width: 1200px; margin: 0 auto;
+  padding-left: 3rem; padding-right: 3rem;
+}
+
+.squads-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin: 3rem 0;
+}
+.squad-card {
+  background: var(--card);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.squad-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 60px rgba(29,185,84,0.15);
+}
+.squad-header {
+  padding: 1.2rem 1.5rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+}
+.sq-squads .squad-header { background: var(--green); color: var(--black); }
+.sq-tribes .squad-header { background: var(--green2); color: var(--white); }
+.sq-chapters .squad-header { background: var(--teal); color: var(--white); }
+.sq-guilds .squad-header { background: var(--lgray); color: var(--white); }
+.squad-body {
+  padding: 1.5rem;
+}
+.squad-size {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--white);
+  margin-bottom: 0.5rem;
+}
+.squad-desc {
+  font-size: 0.85rem;
+  color: var(--gray);
+  line-height: 1.5;
+}
+.squad-tag {
+  margin-top: 1rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: var(--lgray);
+  text-transform: uppercase;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding-top: 0.8rem;
+}
+
+/* Papéis lista */
+.roles-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+  margin: 2rem 0;
+}
+.role-item {
+  display: flex; gap: 1rem;
+  background: var(--card);
+  border-radius: 10px;
+  padding: 1rem 1.2rem;
+  border-left: 3px solid var(--green);
+}
+.role-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  margin-top: 0.4rem;
+  flex-shrink: 0;
+}
+.role-title { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.2rem; }
+.role-desc { font-size: 0.8rem; color: var(--gray); }
+
+/* Quote */
+.quote-block {
+  background: var(--card2);
+  border-left: 4px solid var(--green);
+  border-radius: 0 12px 12px 0;
+  padding: 2rem 2.5rem;
+  margin: 2rem 0;
+  position: relative;
+}
+.quote-mark {
+  font-family: 'Playfair Display', serif;
+  font-size: 5rem;
+  color: var(--green);
+  opacity: 0.2;
+  position: absolute;
+  top: -0.5rem; left: 1rem;
+  line-height: 1;
+}
+.quote-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  font-style: italic;
+  line-height: 1.6;
+  color: var(--white);
+  position: relative; z-index: 1;
+}
+.quote-source {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--gray);
+  margin-top: 1rem;
+  letter-spacing: 0.1em;
+}
+
+/* ── OKRS / KPIS ───────────────────────────── */
+#indicators {
+  background: var(--black);
+  max-width: 1200px; margin: 0 auto;
+  padding-left: 3rem; padding-right: 3rem;
+}
+
+.big-numbers {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin: 3rem 0;
+}
+.bn-card {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(29,185,84,0.2);
+  transition: border-color 0.3s, transform 0.3s;
+}
+.bn-card:hover {
+  border-color: var(--green);
+  transform: scale(1.02);
+}
+.bn-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0; height: 3px;
+  background: var(--green);
+}
+.bn-value {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.8rem;
+  font-weight: 900;
+  color: var(--green);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+.bn-label { font-size: 0.8rem; color: var(--gray); }
+
+.okr-cols {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin: 2.5rem 0;
+}
+.okr-card {
+  background: var(--card);
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.okr-header {
+  padding: 1rem 1.5rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.okr-h1 { background: var(--green); color: var(--black); }
+.okr-h2 { background: var(--green2); color: var(--white); }
+.okr-h3 { background: var(--teal); color: var(--white); }
+.okr-body { padding: 1.5rem; }
+.okr-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2rem;
+  font-weight: 900;
+  margin-bottom: 0.5rem;
+}
+.okr-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 1rem; }
+.okr-kr {
+  font-size: 0.85rem;
+  color: var(--gray);
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  display: flex; gap: 0.5rem;
+  line-height: 1.4;
+}
+.okr-kr:last-child { border-bottom: none; }
+.okr-kr::before { content: '✓'; color: var(--green); flex-shrink: 0; }
+
+/* KPI table */
+.kpi-table {
+  margin: 2.5rem 0;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.kpi-row {
+  display: grid;
+  grid-template-columns: 160px 1fr 120px;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.2rem 1.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  transition: background 0.2s;
+}
+.kpi-row:last-child { border-bottom: none; }
+.kpi-row:hover { background: rgba(29,185,84,0.05); }
+.kpi-type {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  text-align: center;
+}
+.kpi-primario { background: rgba(29,185,84,0.15); color: var(--green); }
+.kpi-secundario { background: rgba(230,126,34,0.15); color: var(--orange); }
+.kpi-pratico { background: rgba(23,165,137,0.15); color: var(--teal); }
+.kpi-ex { font-size: 0.88rem; color: var(--gray); line-height: 1.4; }
+.kpi-nivel {
+  font-size: 0.75rem; color: var(--lgray);
+  text-align: right;
+  font-family: 'Space Mono', monospace;
+}
+
+/* ── ARQUITETURA ────────────────────────────── */
+#arch {
+  background: var(--dark);
+  max-width: 1200px; margin: 0 auto;
+  padding-left: 3rem; padding-right: 3rem;
+}
+
+.pipeline {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0;
+  margin: 3rem 0;
+  border-radius: 16px;
+  overflow: hidden;
+}
+.pipe-stage {
+  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  cursor: default;
+  transition: filter 0.3s;
+}
+.pipe-stage:hover { filter: brightness(1.15); }
+.p1 { background: #1DB954; }
+.p2 { background: #17A589; }
+.p3 { background: #0D8A87; }
+.p4 { background: #7B2FBE; }
+.p5 { background: #5A189A; }
+.pipe-icon { font-size: 2rem; margin-bottom: 0.8rem; }
+.pipe-title { font-weight: 700; font-size: 0.82rem; color: var(--black); margin-bottom: 0.3rem; }
+.p4 .pipe-title, .p5 .pipe-title { color: var(--white); }
+.pipe-sub { font-size: 0.7rem; color: rgba(0,0,0,0.6); line-height: 1.3; }
+.p4 .pipe-sub, .p5 .pipe-sub { color: rgba(255,255,255,0.7); }
+.pipe-foot { font-size: 0.68rem; font-weight: 700; color: rgba(0,0,0,0.5); margin-top: 0.8rem; }
+.p4 .pipe-foot, .p5 .pipe-foot { color: rgba(255,255,255,0.5); }
+
+.pipe-arrow {
+  position: absolute; right: -8px; top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+  color: var(--white);
+  font-size: 0.7rem;
+}
+
+/* KPI impact */
+.kpi-impact {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+.impact-pill {
+  padding: 0.6rem 1.5rem;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: flex; align-items: center; gap: 0.4rem;
+}
+.ip-ret { background: var(--green); color: var(--black); }
+.ip-eng { background: var(--green2); color: var(--white); }
+.ip-rec { background: var(--orange); color: var(--white); }
+.ip-chu { background: var(--red); color: var(--white); }
+
+.design-principles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin: 2rem 0;
+}
+.dp-card {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 1.2rem 1.5rem;
+  border-left: 3px solid var(--green);
+  transition: transform 0.2s, border-color 0.2s;
+}
+.dp-card:hover { transform: translateX(4px); border-color: var(--teal); }
+.dp-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 0.4rem; color: var(--white); }
+.dp-desc { font-size: 0.82rem; color: var(--gray); line-height: 1.4; }
+
+/* ── COMPARATIVO ───────────────────────────── */
+#comparative {
+  background: var(--black);
+  max-width: 1200px; margin: 0 auto;
+  padding-left: 3rem; padding-right: 3rem;
+}
+
+.comp-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin: 3rem 0;
+}
+.comp-table {
+  background: var(--card);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.comp-th {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0;
+  background: var(--card2);
+  padding: 0.8rem 1.2rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--lgray);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.comp-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0;
+  padding: 1rem 1.2rem;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  font-size: 0.85rem;
+  align-items: start;
+  transition: background 0.2s;
+}
+.comp-row:hover { background: rgba(255,255,255,0.03); }
+.comp-row:last-child { border-bottom: none; }
+.comp-name { font-weight: 600; color: var(--white); }
+.comp-pro { color: var(--green); font-size: 0.8rem; }
+.comp-con { color: var(--red); font-size: 0.8rem; }
+
+.spotify-edge {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 2rem;
+  border: 1px solid rgba(29,185,84,0.3);
+}
+.edge-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--green);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+}
+.edge-item {
+  padding: 0.9rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.edge-item:last-child { border-bottom: none; }
+.edge-item-title { font-weight: 600; font-size: 0.92rem; margin-bottom: 0.3rem; }
+.edge-item-desc { font-size: 0.82rem; color: var(--gray); line-height: 1.4; }
+
+/* ── ATRIBUTOS + RISCOS ─────────────────────── */
+#attrs {
+  background: var(--dark);
+  max-width: 1200px; margin: 0 auto;
+  padding-left: 3rem; padding-right: 3rem;
+}
+
+.attrs-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin: 2rem 0;
+}
+.attr-card {
+  background: var(--card);
+  border-radius: 14px;
+  padding: 1.5rem;
+  display: flex; gap: 1rem;
+  align-items: flex-start;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.attr-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+}
+.attr-num {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.75rem; font-weight: 700;
+  flex-shrink: 0;
+}
+.attr-title { font-weight: 700; font-size: 0.92rem; margin-bottom: 0.3rem; }
+.attr-desc { font-size: 0.8rem; color: var(--gray); line-height: 1.4; }
+
+.risks-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin: 2rem 0;
+}
+.risk-card {
+  background: var(--card);
+  border-radius: 14px;
+  padding: 1.5rem;
+  border-left: 4px solid;
+}
+.r-red { border-color: var(--red); }
+.r-orange { border-color: var(--orange); }
+.r-purple { border-color: var(--purple); }
+.r-gray { border-color: var(--lgray); }
+.risk-title { font-weight: 700; margin-bottom: 0.5rem; font-size: 0.95rem; }
+.risk-desc { font-size: 0.82rem; color: var(--gray); margin-bottom: 0.8rem; line-height: 1.4; }
+.risk-mit {
+  font-size: 0.78rem;
+  color: var(--green);
+  font-style: italic;
+  display: flex; align-items: center; gap: 0.4rem;
+}
+.risk-mit::before { content: '↳'; font-style: normal; }
+
+/* ── CONCLUSION ─────────────────────────────── */
+#conclusion {
+  background: var(--black);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 6rem 3rem;
+  position: relative;
+  overflow: hidden;
+}
+#conclusion::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center, rgba(29,185,84,0.08) 0%, transparent 70%);
+}
+
+.conclusion-pre {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--lgray);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+}
+.conclusion-h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.5rem, 5vw, 5.5rem);
+  font-weight: 900;
+  line-height: 1.05;
+  max-width: 900px;
+  margin-bottom: 1rem;
+}
+.conclusion-h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.5rem, 5vw, 5.5rem);
+  font-weight: 900;
+  line-height: 1.05;
+  color: var(--green);
+  max-width: 900px;
+  margin-bottom: 3rem;
+  font-style: italic;
+}
+
+.conclusion-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  max-width: 800px;
+  margin: 0 auto 3rem;
+}
+.cc {
+  background: var(--card);
+  border-radius: 14px;
+  padding: 1.5rem;
+  text-align: left;
+  border: 1px solid rgba(255,255,255,0.06);
+  transition: border-color 0.3s;
+}
+.cc:hover { border-color: rgba(29,185,84,0.4); }
+.cc-title { font-weight: 700; font-size: 0.92rem; margin-bottom: 0.5rem; color: var(--white); }
+.cc-desc { font-size: 0.82rem; color: var(--gray); line-height: 1.5; }
+
+.final-stat-bar {
+  background: var(--green);
+  color: var(--black);
+  border-radius: 50px;
+  padding: 1rem 2.5rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  display: inline-block;
+  position: relative; z-index: 1;
+}
+
+.credits {
+  margin-top: 4rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--lgray);
+  letter-spacing: 0.1em;
+  text-align: center;
+  line-height: 2;
+}
+
+/* ── CONCLUSION BOX ─────────────────────────── */
+.conclusion-box {
+  background: var(--card2);
+  border: 1px solid rgba(29,185,84,0.3);
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  margin: 2.5rem 0;
+  display: flex; gap: 1rem; align-items: flex-start;
+}
+.cb-icon {
+  font-size: 1.5rem; flex-shrink: 0; margin-top: 0.1rem;
+}
+.cb-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--green);
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+.cb-text { font-size: 0.9rem; color: var(--gray); line-height: 1.5; }
+
+/* ── WAVEFORM SEPARATOR ─────────────────────── */
+.waveform-sep {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 3rem;
+  gap: 2px;
+  background: var(--dark);
+}
+.wave-bar {
+  width: 3px;
+  background: var(--green);
+  border-radius: 2px;
+  opacity: 0.4;
+  animation: waveAnim ease-in-out infinite alternate;
+}
+@keyframes waveAnim {
+  0%   { height: 4px; }
+  100% { height: 28px; opacity: 0.9; }
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">♪ SPOTIFY · MBA MACKENZIE</div>
+  <ul class="nav-links">
+    <li><a href="#core">Core</a></li>
+    <li><a href="#timeline">Evolução</a></li>
+    <li><a href="#squads">Squads</a></li>
+    <li><a href="#indicators">Indicadores</a></li>
+    <li><a href="#arch">Arquitetura</a></li>
+    <li><a href="#conclusion">Conclusão</a></li>
+  </ul>
+</nav>
+
+<!-- ════════════ HERO ════════════ -->
+<section id="hero">
+  <div class="hero-bg-notes" id="bgNotes"></div>
+
+  <div class="equalizer" id="eq">
+    <!-- JS generated bars -->
+  </div>
+
+  <h1 class="hero-title reveal">
+    <span class="italic accent">O Dado</span><br>
+    é o <span>Produto</span>
+  </h1>
+  <p class="hero-subtitle reveal">
+    Como o Spotify transformou comportamento de escuta em vantagem competitiva estrutural — e por que nenhum concorrente replica isso no curto prazo.
+  </p>
+  <p class="hero-authors reveal">
+    Alice Marcelino · Barbara Nascimento · Camila Ferreira · Thays Soares Silva<br>
+    MBA em Inteligência de Dados & Analytics · Mackenzie · 2026
+  </p>
+
+  <div class="scroll-hint">
+    <span>scroll</span>
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+      <path d="M10 4v12M4 10l6 6 6-6" stroke="#1DB954" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+  </div>
+</section>
+
+<!-- WAVEFORM -->
+<div class="waveform-sep" id="wave1"></div>
+
+<!-- ════════════ CORE BUSINESS ════════════ -->
+<section id="core">
+  <div class="section-label reveal">01 · Core Business</div>
+  <h2 class="big-statement reveal">
+    Em 2006, consumir música legalmente era<br>
+    <span class="g">estruturalmente inferior</span> à pirataria.
+  </h2>
+
+  <div class="problem-solution reveal">
+    <div class="problem-side">
+      <div class="ps-label">❌ O Problema</div>
+      <p class="ps-text">A pirataria era gratuita, instantânea e sem atrito. O produto legal era caro, fragmentado e dependia do próprio usuário para ser organizado. Não havia como competir com conveniência — era preciso superar.</p>
+      <p class="ps-highlight">"O produto legal era inferior em todos os critérios objetivos."</p>
+    </div>
+    <div class="solution-side">
+      <div class="ps-label">✓ A Solução</div>
+      <p class="ps-text">Tornar o produto legal estruturalmente superior — não pelo catálogo, mas pelo algoritmo. Cada play, skip e salvamento vira sinal. O dado não informa o produto: ele é o produto.</p>
+      <p class="ps-highlight">"O catálogo resolve o acesso. O algoritmo resolve a escolha."</p>
+    </div>
+  </div>
+
+  <div class="stats-row reveal">
+    <div class="stat-card">
+      <span class="stat-num counter" data-target="751">0</span><span class="stat-num" style="font-size:1.5rem;color:var(--green)">M</span>
+      <div class="stat-label">Usuários Ativos Mensais</div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num">100M<span style="font-size:1.5rem">+</span></span>
+      <div class="stat-label">Faixas no catálogo</div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num">184</span>
+      <div class="stat-label">Mercados globais</div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num counter" data-target="19">0</span>
+      <div class="stat-label">Anos escrevendo dados</div>
+    </div>
+  </div>
+
+  <div class="conclusion-box reveal">
+    <div class="cb-icon">🎯</div>
+    <div>
+      <div class="cb-label">Conclusão</div>
+      <div class="cb-text">O Spotify não competiu pelo catálogo. Competiu pelo algoritmo. O dado comportamental acumulado em quase duas décadas é o que nenhum concorrente replica no curto prazo.</div>
+    </div>
+  </div>
+</section>
+
+<!-- VINYL DIVIDER -->
+<div class="vinyl-divider">
+  <div class="divider-line"></div>
+  <div class="vinyl"></div>
+  <div class="divider-line"></div>
+</div>
+
+<!-- ════════════ DATA-DRIVEN × DATA CENTRIC ════════════ -->
+<section id="data">
+  <div class="section-label reveal">02 · Uso de Dados</div>
+  <h2 style="font-family:'Playfair Display',serif;font-size:2.5rem;font-weight:900;margin-bottom:0.5rem;" class="reveal">
+    Data-Driven × Data Centric
+  </h2>
+  <p style="color:var(--gray);margin-bottom:2rem;" class="reveal">Duas abordagens complementares que juntas formam a espinha dorsal da estratégia.</p>
+
+  <div class="versus-grid reveal">
+    <div class="versus-col">
+      <div class="versus-header driven">DATA-DRIVEN — Foco na Estratégia</div>
+      <div class="versus-items">
+        <div class="versus-item">Big Data, IA e ML processam bilhões de horas de escuta</div>
+        <div class="versus-item">Discover Weekly e Release Radar: produtos diretos do dado</div>
+        <div class="versus-item">KPIs de retenção, churn e tempo de uso em tempo real</div>
+        <div class="versus-item">Publicidade direcionada por perfil comportamental</div>
+        <div class="versus-item">Nenhuma decisão de produto sem suporte em evidências</div>
+      </div>
+    </div>
+    <div class="vs-badge">
+      <div class="vs-circle">×</div>
+    </div>
+    <div class="versus-col">
+      <div class="versus-header centric">DATA CENTRIC — Foco na Estrutura</div>
+      <div class="versus-items">
+        <div class="versus-item">Catálogos documentam datasets para reutilização entre squads</div>
+        <div class="versus-item">Versionamento garante rastreabilidade e reprodutibilidade</div>
+        <div class="versus-item">Data contracts: schema, SLA e responsável por domínio</div>
+        <div class="versus-item">Data Mesh no GCP: cada squad dono do seu produto de dados</div>
+        <div class="versus-item">Dado do Brasil tem mesmo peso e qualidade que dado do Japão</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WAVEFORM -->
+<div class="waveform-sep" id="wave2"></div>
+
+<!-- ════════════ TIMELINE ════════════ -->
+<section id="timeline">
+  <div class="section-label reveal">03 · Evolução do Modelo</div>
+  <h2 style="font-family:'Playfair Display',serif;font-size:2.5rem;font-weight:900;margin-bottom:3rem;" class="reveal">
+    Quatro Reinvenções Sustentadas por Dados
+  </h2>
+
+  <div class="timeline-track">
+    <div class="tl-item reveal-left">
+      <div class="tl-content">
+        <div class="tl-period">2006 — 2010</div>
+        <div class="tl-move">Streaming Freemium 🎵</div>
+        <div class="tl-ev">Dados de reprodução viabilizaram royalties dinâmicos — modelo novo para toda a indústria.</div>
+        <div class="tl-result">→ Alternativa legal superior à pirataria.</div>
+      </div>
+      <div class="tl-mid"><div class="tl-dot">01</div></div>
+      <div></div>
+    </div>
+
+    <div class="tl-item reveal-right">
+      <div></div>
+      <div class="tl-mid"><div class="tl-dot">02</div></div>
+      <div class="tl-content">
+        <div class="tl-period">2011 — 2016</div>
+        <div class="tl-move">Recomendação como Produto 🎧</div>
+        <div class="tl-ev">Padrões de skip e salvamento revelaram que usuários preferem ser guiados a escolher.</div>
+        <div class="tl-result">→ Diferencial competitivo estrutural inimitável.</div>
+      </div>
+    </div>
+
+    <div class="tl-item reveal-left">
+      <div class="tl-content">
+        <div class="tl-period">2017 — 2022</div>
+        <div class="tl-move">Podcasts + IPO na NYSE 🎙️</div>
+        <div class="tl-ev">Sessões longas sinalizaram apetite por conteúdo de maior duração. Aquisição de Gimlet, Anchor e Megaphone.</div>
+        <div class="tl-result">→ Nova receita; menos dependência de royalties musicais.</div>
+      </div>
+      <div class="tl-mid"><div class="tl-dot">03</div></div>
+      <div></div>
+    </div>
+
+    <div class="tl-item reveal-right">
+      <div></div>
+      <div class="tl-mid"><div class="tl-dot">04</div></div>
+      <div class="tl-content">
+        <div class="tl-period">2023 — 2026</div>
+        <div class="tl-move">Super-app + IA Generativa 🤖</div>
+        <div class="tl-ev">4 bilhões de horas no AI DJ validaram curadoria conversacional. Dataset de linguagem-para-música nunca antes construído.</div>
+        <div class="tl-result">→ €4,5Bi de receita · €701M de lucro · Q4/2025.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="conclusion-box reveal" style="border-color:rgba(230,126,34,0.4);">
+    <div class="cb-icon">💡</div>
+    <div>
+      <div class="cb-label" style="color:var(--orange)">Insight</div>
+      <div class="cb-text">O usuário gratuito é simultaneamente <strong style="color:var(--white)">(1)</strong> fonte de sinal comportamental, <strong style="color:var(--white)">(2)</strong> produto vendido ao anunciante via Ad Studio e <strong style="color:var(--white)">(3)</strong> funil qualificado para o Premium. Três fontes de valor em um único perfil.</div>
+    </div>
+  </div>
+</section>
+
+<!-- VINYL DIVIDER -->
+<div class="vinyl-divider">
+  <div class="divider-line"></div>
+  <div class="vinyl" style="animation-duration:2s;"></div>
+  <div class="divider-line"></div>
+</div>
+
+<!-- ════════════ SQUADS ════════════ -->
+<section id="squads">
+  <div class="section-label reveal">04 · Modelo Organizacional</div>
+  <h2 style="font-family:'Playfair Display',serif;font-size:2.5rem;font-weight:900;margin-bottom:0.5rem;" class="reveal">
+    Squads, Tribes, Chapters e Guilds
+  </h2>
+  <p style="color:var(--gray);margin-bottom:2.5rem;" class="reveal">Cada elemento resolve um problema específico de coordenação em escala.</p>
+
+  <div class="squads-grid reveal">
+    <div class="squad-card sq-squads">
+      <div class="squad-header">SQUADS</div>
+      <div class="squad-body">
+        <div class="squad-size">6–12</div>
+        <div class="squad-desc">Unidade básica autônoma com missão clara, dados, pipeline e KPIs próprios. Cada Squad entrega end-to-end sem depender de times externos.</div>
+        <div class="squad-tag">PRODUTO · MISSÃO CLARA</div>
+      </div>
+    </div>
+    <div class="squad-card sq-tribes">
+      <div class="squad-header">TRIBES</div>
+      <div class="squad-body">
+        <div class="squad-size">40–150</div>
+        <div class="squad-desc">Agrupam squads relacionados por produto. O Tribe Lead coordena e fomenta colaboração, garantindo alinhamento sem burocracia.</div>
+        <div class="squad-tag">PRODUTO · AGRUPAMENTO</div>
+      </div>
+    </div>
+    <div class="squad-card sq-chapters">
+      <div class="squad-header">CHAPTERS</div>
+      <div class="squad-body">
+        <div class="squad-size">∞</div>
+        <div class="squad-desc">Especialistas de mesma competência dentro de uma tribo. Garantem padrões técnicos e consistência entre os squads.</div>
+        <div class="squad-tag">COMPETÊNCIA · PADRÕES</div>
+      </div>
+    </div>
+    <div class="squad-card sq-guilds">
+      <div class="squad-header">GUILDS</div>
+      <div class="squad-body">
+        <div class="squad-size">★</div>
+        <div class="squad-desc">Comunidades voluntárias por interesse, transversais a toda a organização. Abertas a qualquer pessoa que queira participar.</div>
+        <div class="squad-tag">INTERESSE · VOLUNTÁRIO</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Papéis -->
+  <h3 style="font-family:'Playfair Display',serif;font-size:1.6rem;margin:2.5rem 0 1.5rem;font-weight:700;" class="reveal">Quem Faz o Dado Funcionar</h3>
+  <div class="roles-list reveal">
+    <div class="role-item"><div class="role-dot"></div><div><div class="role-title">CDO / VP de Dados</div><div class="role-desc">Estratégia, governança global e ética algorítmica.</div></div></div>
+    <div class="role-item"><div class="role-dot" style="background:var(--green2)"></div><div><div class="role-title">Data Engineers</div><div class="role-desc">Infraestrutura e confiabilidade dos pipelines.</div></div></div>
+    <div class="role-item"><div class="role-dot" style="background:var(--teal)"></div><div><div class="role-title">Data Product Owners</div><div class="role-desc">Traduzem negócio em produtos de dados nos squads.</div></div></div>
+    <div class="role-item"><div class="role-dot" style="background:var(--purple)"></div><div><div class="role-title">Data Scientists & ML Eng.</div><div class="role-desc">Modelagem, treinamento e operacionalização.</div></div></div>
+    <div class="role-item"><div class="role-dot" style="background:var(--orange)"></div><div><div class="role-title">Data Stewards</div><div class="role-desc">Qualidade e lineage dos datasets por domínio.</div></div></div>
+    <div class="role-item"><div class="role-dot" style="background:var(--lgray)"></div><div><div class="role-title">Privacy Officers</div><div class="role-desc">Conformidade regulatória em 180+ mercados.</div></div></div>
+  </div>
+
+  <div class="quote-block reveal">
+    <div class="quote-mark">"</div>
+    <div class="quote-text">Estamos construindo um dataset que nunca existiu, pois ninguém tinha o dataset de linguagem-para-música.</div>
+    <div class="quote-source">— CO-CEO GUSTAV SÖDERSTRÖM · Q4 2025 EARNINGS CALL</div>
+  </div>
+
+  <div class="conclusion-box reveal">
+    <div class="cb-icon">🏗️</div>
+    <div>
+      <div class="cb-label">Conclusão</div>
+      <div class="cb-text">O modelo não é prescritivo — é adaptável. A autonomia end-to-end dos Squads é o que torna possível a experimentação contínua em escala sem ciclos de aprovação centralizados.</div>
+    </div>
+  </div>
+</section>
+
+<!-- WAVEFORM -->
+<div class="waveform-sep" id="wave3"></div>
+
+<!-- ════════════ INDICADORES ════════════ -->
+<section id="indicators">
+  <div class="section-label reveal">05 · Indicadores de Desempenho</div>
+  <h2 style="font-family:'Playfair Display',serif;font-size:2.5rem;font-weight:900;margin-bottom:0.3rem;" class="reveal">
+    OKRs & KPIs
+  </h2>
+  <p style="color:var(--gray);margin-bottom:1rem;" class="reveal">Dados reais: Spotify Shareholder Letter, Q4 2025 (fevereiro 2026).</p>
+
+  <div class="big-numbers reveal">
+    <div class="bn-card">
+      <div class="bn-value counter" data-target="751" data-suffix="M">0</div>
+      <div class="bn-label">Usuários Ativos Mensais</div>
+    </div>
+    <div class="bn-card">
+      <div class="bn-value">€4,5Bi</div>
+      <div class="bn-label">Receita Q4/2025</div>
+    </div>
+    <div class="bn-card">
+      <div class="bn-value">33,1%</div>
+      <div class="bn-label">Margem Bruta</div>
+    </div>
+    <div class="bn-card">
+      <div class="bn-value">€701M</div>
+      <div class="bn-label">Lucro Operacional</div>
+    </div>
+  </div>
+
+  <div class="okr-cols reveal">
+    <div class="okr-card">
+      <div class="okr-header okr-h1">OBJETIVO ESTRATÉGICO</div>
+      <div class="okr-body">
+        <div class="okr-num">01</div>
+        <div class="okr-title">Empresa lucrativa e escalável</div>
+        <div class="okr-kr">€4,5 bilhões de receita trimestral</div>
+        <div class="okr-kr">Margem bruta de 33,1%</div>
+        <div class="okr-kr">€701 milhões de lucro operacional</div>
+      </div>
+    </div>
+    <div class="okr-card">
+      <div class="okr-header okr-h2">OBJETIVO TÁTICO</div>
+      <div class="okr-body">
+        <div class="okr-num" style="color:var(--teal)">02</div>
+        <div class="okr-title">Crescimento da base de usuários</div>
+        <div class="okr-kr">751 milhões de MAUs (+11% a.a.)</div>
+        <div class="okr-kr">9 milhões de novas assinaturas Premium no trimestre</div>
+        <div class="okr-kr">Rest of World: 37% da base — crescimento mais rápido</div>
+      </div>
+    </div>
+    <div class="okr-card">
+      <div class="okr-header okr-h3">OBJETIVO DE ECOSSISTEMA</div>
+      <div class="okr-body">
+        <div class="okr-num" style="color:var(--teal)">03</div>
+        <div class="okr-title">Rentabilizar criadores</div>
+        <div class="okr-kr">US$ 11 bilhões pagos à indústria musical em 2025</div>
+        <div class="okr-kr">4 bilhões de horas no AI DJ (90M usuários)</div>
+        <div class="okr-kr">75M+ faixas de spam removidas — qualidade do catálogo</div>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="font-family:'Playfair Display',serif;font-size:1.5rem;margin:2.5rem 0 1rem;font-weight:700;" class="reveal">Três Tipos de KPI, Uma Cadeia</h3>
+  <div class="kpi-table reveal">
+    <div class="kpi-row" style="background:var(--card2);">
+      <div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--lgray);letter-spacing:0.1em;">TIPO</div>
+      <div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--lgray);letter-spacing:0.1em;">EXEMPLOS</div>
+      <div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--lgray);letter-spacing:0.1em;text-align:right;">NÍVEL</div>
+    </div>
+    <div class="kpi-row">
+      <div><span class="kpi-type kpi-primario">PRIMÁRIO</span></div>
+      <div class="kpi-ex">MAU · Receita Total · Margem Bruta · Lucro Operacional</div>
+      <div class="kpi-nivel">Estratégico</div>
+    </div>
+    <div class="kpi-row">
+      <div><span class="kpi-type kpi-secundario">SECUNDÁRIO</span></div>
+      <div class="kpi-ex">Novas assinaturas Premium · ARPU · Royalties pagos · Receita de anúncios</div>
+      <div class="kpi-nivel">Tático</div>
+    </div>
+    <div class="kpi-row">
+      <div><span class="kpi-type kpi-pratico">PRÁTICO</span></div>
+      <div class="kpi-ex">Taxa de skip · Tempo de escuta contínua · Salvamentos · Horas no AI DJ · Churn diário</div>
+      <div class="kpi-nivel">Operacional</div>
+    </div>
+  </div>
+</section>
+
+<!-- VINYL DIVIDER -->
+<div class="vinyl-divider">
+  <div class="divider-line"></div>
+  <div class="vinyl" style="animation-duration:6s;"></div>
+  <div class="divider-line"></div>
+</div>
+
+<!-- ════════════ ARQUITETURA ════════════ -->
+<section id="arch">
+  <div class="section-label reveal">06 · Arquitetura de Dados</div>
+  <h2 style="font-family:'Playfair Display',serif;font-size:2.5rem;font-weight:900;margin-bottom:0.5rem;" class="reveal">
+    Lakehouse Descentralizada
+  </h2>
+  <p style="color:var(--gray);margin-bottom:2.5rem;" class="reveal">GCP + Kafka + Flink + Iceberg + Data Mesh. Cada interação vira dado em milissegundos.</p>
+
+  <div class="pipeline reveal">
+    <div class="pipe-stage p1">
+      <div class="pipe-icon">📱</div>
+      <div class="pipe-title">Coleta de Dados</div>
+      <div class="pipe-sub">Ingestion em Tempo Real</div>
+      <div class="pipe-foot">Plays · Skips · Buscas</div>
+    </div>
+    <div class="pipe-stage p2">
+      <div class="pipe-icon">⚙️</div>
+      <div class="pipe-title">Processamento</div>
+      <div class="pipe-sub">Streaming e Batch · Kafka + Flink</div>
+      <div class="pipe-foot">Processamento de Dados</div>
+    </div>
+    <div class="pipe-stage p3">
+      <div class="pipe-icon">🗄️</div>
+      <div class="pipe-title">Armazenamento</div>
+      <div class="pipe-sub">Data Lake · Apache Iceberg</div>
+      <div class="pipe-foot">Armazenagem de Dados</div>
+    </div>
+    <div class="pipe-stage p4">
+      <div class="pipe-icon">🧠</div>
+      <div class="pipe-title" style="color:var(--white)">Machine Learning</div>
+      <div class="pipe-sub" style="color:rgba(255,255,255,0.7)">Recomendações Inteligentes</div>
+      <div class="pipe-foot" style="color:rgba(255,255,255,0.5)">Modelos Preditivos</div>
+    </div>
+    <div class="pipe-stage p5">
+      <div class="pipe-icon">📢</div>
+      <div class="pipe-title" style="color:var(--white)">Ativação</div>
+      <div class="pipe-sub" style="color:rgba(255,255,255,0.7)">Personalização · Anúncios</div>
+      <div class="pipe-foot" style="color:rgba(255,255,255,0.5)">Ações e Insights</div>
+    </div>
+  </div>
+
+  <div class="kpi-impact reveal">
+    <div class="impact-pill ip-ret">↑ Retenção</div>
+    <div class="impact-pill ip-eng">↑ Engajamento</div>
+    <div class="impact-pill ip-rec">↑ Receita</div>
+    <div class="impact-pill ip-chu">↓ Churn</div>
+  </div>
+
+  <h3 style="font-family:'Playfair Display',serif;font-size:1.5rem;margin:2.5rem 0 1.5rem;font-weight:700;" class="reveal">Analytics by Design — 6 Princípios</h3>
+  <div class="design-principles reveal">
+    <div class="dp-card"><div class="dp-title">🎯 Data Centric Thinking</div><div class="dp-desc">Decisões sempre baseadas em evidências. O dado precede, não sucede, a decisão.</div></div>
+    <div class="dp-card"><div class="dp-title">📡 Coleta Embutida</div><div class="dp-desc">Cada clique e skip é um evento capturado automaticamente desde o dia 1.</div></div>
+    <div class="dp-card"><div class="dp-title">🏗️ Arq. Escalável</div><div class="dp-desc">Data Lakes, APIs e eventos em tempo real com governança embutida no design.</div></div>
+    <div class="dp-card"><div class="dp-title">🔬 Experimentação</div><div class="dp-desc">A/B tests semanais em toda e qualquer alteração de produto — sem exceções.</div></div>
+    <div class="dp-card"><div class="dp-title">🔄 Ciclo Fechado</div><div class="dp-desc">Dados → Insights → Decisões → Ações → Novos dados. Loop permanente.</div></div>
+    <div class="dp-card"><div class="dp-title">🧭 Cultura de Analytics</div><div class="dp-desc">Squads operam com métricas definidas antes do lançamento — nunca depois.</div></div>
+  </div>
+</section>
+
+<!-- WAVEFORM -->
+<div class="waveform-sep" id="wave4"></div>
+
+<!-- ════════════ COMPARATIVO ════════════ -->
+<section id="comparative">
+  <div class="section-label reveal">07 · Análise Comparativa</div>
+  <h2 style="font-family:'Playfair Display',serif;font-size:2.5rem;font-weight:900;margin-bottom:0.5rem;" class="reveal">
+    A Vantagem Não Está no Catálogo
+  </h2>
+  <p class="reveal" style="color:var(--gray);font-style:italic;margin-bottom:2.5rem;">"Fizemos recomendações inteligentes. Editorial e algoritmo não são excludentes. Você pode casá-los." — Daniel Ek, 2012</p>
+
+  <div class="comp-grid reveal">
+    <div class="comp-table">
+      <div class="comp-th"><div>Concorrente</div><div>Vantagem</div><div>Limitação</div></div>
+      <div class="comp-row">
+        <div class="comp-name">🍎 Apple Music</div>
+        <div class="comp-pro">Ecossistema Apple</div>
+        <div class="comp-con">Sem freemium robusto</div>
+      </div>
+      <div class="comp-row">
+        <div class="comp-name">📦 Amazon Music</div>
+        <div class="comp-pro">Prime + Alexa</div>
+        <div class="comp-con">Sem liderança em personalização</div>
+      </div>
+      <div class="comp-row">
+        <div class="comp-name">▶️ YouTube Music</div>
+        <div class="comp-pro">Música em vídeo</div>
+        <div class="comp-con">Foco dividido com vídeo</div>
+      </div>
+      <div class="comp-row">
+        <div class="comp-name">🎵 Deezer</div>
+        <div class="comp-pro">Parcerias Telecom (TIM)</div>
+        <div class="comp-con">Base menor, tecnologia inferior</div>
+      </div>
+    </div>
+
+    <div class="spotify-edge">
+      <div class="edge-title">✦ Vantagem Spotify</div>
+      <div class="edge-item">
+        <div class="edge-item-title">Dataset comportamental</div>
+        <div class="edge-item-desc">Quase 2 décadas de sinais de escuta. Nenhum concorrente replica no curto prazo.</div>
+      </div>
+      <div class="edge-item">
+        <div class="edge-item-title">Escala dupla</div>
+        <div class="edge-item-desc">Leitura simultânea do usuário individual e da tendência global de gênero.</div>
+      </div>
+      <div class="edge-item">
+        <div class="edge-item-title">Evidências para a indústria</div>
+        <div class="edge-item-desc">Informa negociações com Sony, Universal e Warner com dados que as gravadoras não têm.</div>
+      </div>
+      <div class="edge-item">
+        <div class="edge-item-title">Inteligência em tempo real</div>
+        <div class="edge-item-desc">751M usuários em 184 mercados como sensor cultural permanente.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="conclusion-box reveal">
+    <div class="cb-icon">🏆</div>
+    <div>
+      <div class="cb-label">Conclusão</div>
+      <div class="cb-text">A vantagem do Spotify está no dataset acumulado, não no catálogo. É isso que é estruturalmente difícil de replicar — e que posiciona a empresa na fronteira da IA Generativa.</div>
+    </div>
+  </div>
+</section>
+
+<!-- VINYL DIVIDER -->
+<div class="vinyl-divider">
+  <div class="divider-line"></div>
+  <div class="vinyl" style="animation-duration:3s;"></div>
+  <div class="divider-line"></div>
+</div>
+
+<!-- ════════════ ATRIBUTOS + RISCOS ════════════ -->
+<section id="attrs">
+  <div class="section-label reveal">08 · Atributos e Riscos</div>
+  <h2 style="font-family:'Playfair Display',serif;font-size:2.5rem;font-weight:900;margin-bottom:2rem;" class="reveal">
+    O Que Sustenta e o Que Ameaça
+  </h2>
+
+  <h3 style="font-family:'Playfair Display',serif;font-size:1.4rem;margin-bottom:1.2rem;font-weight:700;" class="reveal">6 Atributos Estratégicos</h3>
+  <div class="attrs-grid reveal">
+    <div class="attr-card">
+      <div class="attr-num" style="background:rgba(29,185,84,0.15);color:var(--green)">01</div>
+      <div><div class="attr-title">Dados no Centro</div><div class="attr-desc">Nenhuma decisão de produto, licenciamento ou expansão sem evidência comportamental.</div></div>
+    </div>
+    <div class="attr-card">
+      <div class="attr-num" style="background:rgba(13,122,95,0.15);color:var(--green2)">02</div>
+      <div><div class="attr-title">Modelo Disruptivo</div><div class="attr-desc">Produto legal superior à pirataria pelo algoritmo — reconfigurou toda a indústria.</div></div>
+    </div>
+    <div class="attr-card">
+      <div class="attr-num" style="background:rgba(23,165,137,0.15);color:var(--teal)">03</div>
+      <div><div class="attr-title">Leitura do Ambiente</div><div class="attr-desc">751M usuários em 184 mercados como sensor cultural em tempo real.</div></div>
+    </div>
+    <div class="attr-card">
+      <div class="attr-num" style="background:rgba(230,126,34,0.15);color:var(--orange)">04</div>
+      <div><div class="attr-title">Inovação Contínua</div><div class="attr-desc">50+ funcionalidades em 2025 via Squads autônomos sem aprovação central.</div></div>
+    </div>
+    <div class="attr-card">
+      <div class="attr-num" style="background:rgba(123,47,190,0.15);color:var(--purple)">05</div>
+      <div><div class="attr-title">Experiência do Usuário</div><div class="attr-desc">Personalização elimina fricção — Discover Weekly, AI DJ, Wrapped.</div></div>
+    </div>
+    <div class="attr-card">
+      <div class="attr-num" style="background:rgba(29,185,84,0.15);color:var(--green)">06</div>
+      <div><div class="attr-title">Valor nos Dados</div><div class="attr-desc">Premium + Ad Studio + Spotify for Artists + IA Generativa (US$4,3Bi projeção Goldman Sachs).</div></div>
+    </div>
+  </div>
+
+  <h3 style="font-family:'Playfair Display',serif;font-size:1.4rem;margin:2.5rem 0 1.2rem;font-weight:700;" class="reveal">Riscos & Trade-offs</h3>
+  <div class="risks-list reveal">
+    <div class="risk-card r-red">
+      <div class="risk-title">🔴 Bolha de Escuta</div>
+      <div class="risk-desc">Algoritmo que maximiza tempo de sessão reduz exposição a artistas emergentes — risco sistêmico para o ecossistema musical.</div>
+      <div class="risk-mit">Exploration bonuses no algoritmo + relatório Loud & Clear</div>
+    </div>
+    <div class="risk-card r-orange">
+      <div class="risk-title">🟠 Consentimento & IA</div>
+      <div class="risk-desc">Usuários treinam modelos licenciáveis sem clareza total sobre o que suas interações constroem.</div>
+      <div class="risk-mit">License first, build later — acordos com Sony, Universal e Warner</div>
+    </div>
+    <div class="risk-card r-purple">
+      <div class="risk-title">🟣 Pressão de Royalties</div>
+      <div class="risk-desc">Margem bruta (33,1%) ainda abaixo de plataformas de software puras. Royalties são a maior parcela de custo.</div>
+      <div class="risk-mit">IA Generativa e conteúdo próprio reduzem dependência</div>
+    </div>
+    <div class="risk-card r-gray">
+      <div class="risk-title">⚪ Spam de IA em Escala</div>
+      <div class="risk-desc">75M+ faixas de spam geradas por IA removidas nos últimos 12 meses. A escala cria externalidades que exigem gestão ativa.</div>
+      <div class="risk-mit">Políticas de moderação contínua e sistemas de detecção</div>
+    </div>
+  </div>
+</section>
+
+<!-- WAVEFORM -->
+<div class="waveform-sep" id="wave5"></div>
+
+<!-- ════════════ CONCLUSION ════════════ -->
+<section id="conclusion">
+  <p class="conclusion-pre reveal">Universidade Presbiteriana Mackenzie · MBA em Inteligência de Dados & Analytics · 2026</p>
+  <h2 class="conclusion-h1 reveal">O Spotify não apenas usa dados.</h2>
+  <h2 class="conclusion-h2 reveal">Há quase duas décadas, ele os escreve.</h2>
+
+  <div class="conclusion-cards reveal">
+    <div class="cc">
+      <div class="cc-title">🔗 Convergência única</div>
+      <div class="cc-desc">Estratégia de negócio, arquitetura de dados e cultura organizacional integradas em um único modelo coeso.</div>
+    </div>
+    <div class="cc">
+      <div class="cc-title">💎 Ativo central</div>
+      <div class="cc-desc">Os dados não são suporte à decisão: são a cadeia de valor inteira — retenção, publicidade, indústria, IA.</div>
+    </div>
+    <div class="cc">
+      <div class="cc-title">🏗️ Arquitetura & Organização</div>
+      <div class="cc-desc">Squads autônomos e Data Mesh não são tendências separadas. São duas faces do mesmo projeto.</div>
+    </div>
+    <div class="cc">
+      <div class="cc-title">📊 Maturidade revelada</div>
+      <div class="cc-desc">Reconhecer e mitigar riscos é o que diferencia organizações maduras das que ainda apenas crescem.</div>
+    </div>
+  </div>
+
+  <div class="final-stat-bar reveal">
+    Q4/2025: €4,5Bi de receita · 33,1% margem bruta · €701M lucro operacional · Os melhores números da história da empresa
+  </div>
+
+  <div class="credits">
+    Alice Marcelino · Barbara Nascimento · Camila Ferreira · Thays Soares Silva<br>
+    Dados e Analytics nas Organizações · Prof. Me. Jonnathan Martins<br>
+    Universidade Presbiteriana Mackenzie · MBA em Inteligência de Dados & Analytics · São Paulo, 2026<br><br>
+    Fontes: Spotify Shareholder Letter Q4/2025 · Loud & Clear · Goldman Sachs Research · Spotify Engineering Blog
+  </div>
+</section>
+
+<script>
+// ── CURSOR ─────────────────────────────────────
+const cursor = document.getElementById('cursor');
+const dot = document.getElementById('cursorDot');
+let mx=0,my=0,cx=0,cy=0;
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  dot.style.left = mx-2.5+'px';
+  dot.style.top = my-2.5+'px';
+});
+function animCursor(){
+  cx += (mx-cx)*0.12; cy += (my-cy)*0.12;
+  cursor.style.left = cx-10+'px';
+  cursor.style.top = cy-10+'px';
+  requestAnimationFrame(animCursor);
+}
+animCursor();
+
+// ── PROGRESS BAR ───────────────────────────────
+const pb = document.getElementById('progressBar');
+window.addEventListener('scroll', () => {
+  const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight) * 100;
+  pb.style.width = pct+'%';
+});
+
+// ── FLOATING NOTES ─────────────────────────────
+const notes = ['♪','♫','♬','♩','🎵','🎶','🎸','🎹','🎷','🎺','🥁'];
+const bg = document.getElementById('bgNotes');
+for(let i=0;i<30;i++){
+  const el = document.createElement('div');
+  el.className = 'floating-note';
+  el.textContent = notes[Math.floor(Math.random()*notes.length)];
+  el.style.left = Math.random()*100+'%';
+  el.style.animationDuration = (8+Math.random()*12)+'s';
+  el.style.animationDelay = (-Math.random()*15)+'s';
+  el.style.fontSize = (1+Math.random()*3)+'rem';
+  bg.appendChild(el);
+}
+
+// ── EQUALIZER ──────────────────────────────────
+const eq = document.getElementById('eq');
+for(let i=0;i<28;i++){
+  const bar = document.createElement('div');
+  bar.className = 'eq-bar';
+  const h = 20+Math.random()*60;
+  bar.style.height = h+'px';
+  bar.style.animationDuration = (0.4+Math.random()*0.8)+'s';
+  bar.style.animationDelay = (Math.random()*0.8)+'s';
+  eq.appendChild(bar);
+}
+
+// ── WAVEFORMS ──────────────────────────────────
+function buildWave(id, n=80) {
+  const el = document.getElementById(id);
+  if(!el) return;
+  for(let i=0;i<n;i++){
+    const b = document.createElement('div');
+    b.className = 'wave-bar';
+    b.style.animationDuration = (0.3+Math.random()*0.7)+'s';
+    b.style.animationDelay = (Math.random()*0.6)+'s';
+    el.appendChild(b);
+  }
+}
+['wave1','wave2','wave3','wave4','wave5'].forEach(id => buildWave(id));
+
+// ── INTERSECTION OBSERVER ───────────────────────
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(e.isIntersecting){
+      e.target.classList.add('visible');
+      // stagger children
+      if(e.target.classList.contains('stats-row') || e.target.classList.contains('squads-grid') ||
+         e.target.classList.contains('roles-list') || e.target.classList.contains('attrs-grid') ||
+         e.target.classList.contains('risks-list') || e.target.classList.contains('okr-cols') ||
+         e.target.classList.contains('big-numbers') || e.target.classList.contains('design-principles') ||
+         e.target.classList.contains('conclusion-cards')){
+        Array.from(e.target.children).forEach((child,i) => {
+          child.style.opacity = '0';
+          child.style.transform = 'translateY(20px)';
+          child.style.transition = `opacity 0.5s ease ${i*0.1}s, transform 0.5s ease ${i*0.1}s`;
+          setTimeout(() => {
+            child.style.opacity = '1';
+            child.style.transform = 'translateY(0)';
+          }, 50);
+        });
+      }
+      // start counters
+      e.target.querySelectorAll('.counter').forEach(startCounter);
+    }
+  });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('.reveal,.reveal-left,.reveal-right').forEach(el => observer.observe(el));
+
+// ── COUNTERS ───────────────────────────────────
+const started = new Set();
+function startCounter(el) {
+  if(started.has(el)) return;
+  started.add(el);
+  const target = +el.dataset.target;
+  const suffix = el.dataset.suffix || '';
+  const duration = 1500;
+  const step = target / (duration/16);
+  let current = 0;
+  const timer = setInterval(() => {
+    current = Math.min(current+step, target);
+    el.textContent = Math.floor(current) + suffix;
+    if(current >= target) clearInterval(timer);
+  }, 16);
+}
+
+// ── SCROLL HIGHLIGHT NAV ───────────────────────
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-links a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => {
+    if(window.scrollY >= s.offsetTop - 200) current = s.id;
+  });
+  navLinks.forEach(a => {
+    a.style.color = a.getAttribute('href') === '#'+current ? 'var(--green)' : '';
+  });
+}, { passive:true });
+</script>
+</body>
+</html>
